@@ -23,13 +23,13 @@ client = instructor.patch(
 invoice_file = st.file_uploader("Upload a PDF invoice", type=["pdf"])
 
 class Invoice(BaseModel) :
-    date: datetime.date
-    reference: str
-    supplier: str
-    currency: str
-    total_amount: float
-    total_tax_amount: float
-    description: str
+    date: datetime.date = datetime.datetime.now()
+    reference: str = ""
+    supplier: str = ""
+    currency: str = ""
+    total_amount: float = 0.0
+    total_tax_amount: float = 0.0
+    description: str = ""
 
 def extract_text_from_pdf(file):
     reader = PyPDF2.PdfReader(file)
@@ -39,6 +39,7 @@ def extract_text_from_pdf(file):
         text += page.extract_text()
     return text
 
+invoice = Invoice()
 if invoice_file:
     pdf_text = extract_text_from_pdf(invoice_file)
     invoice = client.chat.completions.create(
@@ -59,7 +60,9 @@ if invoice_file:
         ],
         model="gpt-3.5-turbo",
     )
-    st.json(invoice.model_dump_json(), expanded=True)
+
+st.header("Extracted JSON data:")
+st.json(invoice.model_dump_json(), expanded=True)
 
 
 
